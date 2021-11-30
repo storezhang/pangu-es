@@ -30,7 +30,8 @@ func newElasticClient(config *pangu.Config) (client *Client, err error) {
 		ExpectContinueTimeout: _conf.Http.Connections.Wait,
 		ForceAttemptHTTP2:     _conf.Http.Connections.Http2,
 	}
-
+	
+	client = new(Client)
 	if client.Client, err = elastic.NewClient(
 		elastic.SetHttpClient(httpClient),
 		elastic.SetBasicAuth(_conf.Username, _conf.Password),
