@@ -1,6 +1,10 @@
 package elasticsearch
 
 import (
+	`context`
+	`encoding/json`
+	`net/http`
+
 	"github.com/olivere/elastic/v7"
 )
 
