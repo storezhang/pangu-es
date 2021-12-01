@@ -12,6 +12,12 @@ type Client struct {
 	*elastic.Client
 }
 
+func (c *Client) Save(index string, docId string, bean interface{}) (err error) {
+	_, err = c.Index().Index(index).Id(docId).BodyJson(bean).Refresh("true").Do(context.Background())
+
+	return
+}
+
 func (c *Client) GetByDocId(index string, docId string, result interface{}) (exists bool, err error) {
 	var rsp *elastic.GetResult
 	rsp, err = c.Get().Index(index).Id(docId).Do(context.Background())
@@ -33,3 +39,4 @@ func (c *Client) GetByDocId(index string, docId string, result interface{}) (exi
 
 	return
 }
+
