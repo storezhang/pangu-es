@@ -1,7 +1,7 @@
 package elasticsearch
 
 import (
-	"time"
+	`time`
 )
 
 type elasticHttp struct {

@@ -1,11 +1,11 @@
 package elasticsearch
 
 import (
-	"net"
-	"net/http"
+	`net`
+	`net/http`
 
-	"github.com/olivere/elastic/v7"
-	"github.com/pangum/pangu"
+	`github.com/olivere/elastic/v7`
+	`github.com/pangum/pangu`
 )
 
 func newElasticClient(config *pangu.Config) (client *Client, err error) {
