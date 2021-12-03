@@ -55,14 +55,14 @@ func (c *Client) DeleteByDocId(index string, docId string) (err error) {
 	return
 }
 
-func (c *Client) GetsByQuery(index string, _ elastic.BoolQuery, resultType interface{}) (results []interface{}, err error) {
+func (c *Client) GetsByQuery(index string, _ elastic.BoolQuery, resultType reflect.Type) (results []interface{}, err error) {
 	var res *elastic.SearchResult
 	if res, err = c.Search(index).Do(context.Background()); nil != err {
 		return
 	}
 
 	results = make([]interface{}, 0, res.TotalHits())
-	for _, item := range res.Each(reflect.TypeOf(resultType)) {
+	for _, item := range res.Each(resultType) {
 		results = append(results, item)
 	}
 
