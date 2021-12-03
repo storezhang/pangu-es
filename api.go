@@ -55,7 +55,7 @@ func (c *Client) DeleteByDocId(index string, docId string) (err error) {
 	return
 }
 
-func (c *Client) GetsByQuery(index string, _ elastic.BoolQuery, resultType reflect.Type) (results []interface{}, err error) {
+func (c *Client) GetsByQuery(index string, _ *elastic.BoolQuery, resultType reflect.Type) (results []interface{}, err error) {
 	var res *elastic.SearchResult
 	if res, err = c.Search(index).Do(context.Background()); nil != err {
 		return
