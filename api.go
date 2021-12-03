@@ -4,6 +4,7 @@ import (
 	`context`
 	`encoding/json`
 	`net/http`
+	`reflect`
 
 	`github.com/olivere/elastic/v7`
 )
@@ -49,6 +50,20 @@ func (c *Client) DeleteByDocId(index string, docId string) (err error) {
 				err = nil
 			}
 		}
+	}
+
+	return
+}
+
+func (c *Client) GetsByQuery(index string, _ elastic.BoolQuery, resultType interface{}) (results []interface{}, err error) {
+	var res *elastic.SearchResult
+	if res, err = c.Search(index).Do(context.Background()); nil != err {
+		return
+	}
+
+	results = make([]interface{}, 0, res.TotalHits())
+	for _, item := range res.Each(reflect.TypeOf(resultType)) {
+		results = append(results, item)
 	}
 
 	return
