@@ -24,3 +24,21 @@ func (c *Client) DeleteByDocId(index string, docId string) (err error) {
 
 	return
 }
+
+func (c *Client) DeleteByQuery(index string, query elastic.Query) (err error) {
+	_, err = elastic.NewDeleteByQueryService(c.Client).
+		Index(index).
+		ProceedOnVersionConflict().
+		Refresh("true").
+		Query(query).
+		Do(context.Background())
+	if nil != err {
+		if elasticErr, ok := err.(*elastic.Error); ok {
+			if http.StatusNotFound == elasticErr.Status {
+				err = nil
+			}
+		}
+	}
+
+	return
+}
