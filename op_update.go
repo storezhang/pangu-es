@@ -28,3 +28,26 @@ func (c *Client) UpdateByScript(
 
 	return
 }
+
+func (c *Client) UpdateByQueryAndScript(
+	index string, query elastic.Query, script *elastic.Script,
+) (res *elastic.BulkIndexByScrollResponse, err error) {
+	_update := elastic.NewUpdateByQueryService(c.Client)
+	res, err = _update.
+		Index(index).
+		Query(query).
+		Script(script).
+		ProceedOnVersionConflict().
+		Refresh("true").
+		Do(context.Background())
+
+	if nil != err {
+		if elasticErr, ok := err.(*elastic.Error); ok {
+			if http.StatusNotFound == elasticErr.Status {
+				err = nil
+			}
+		}
+	}
+
+	return
+}
