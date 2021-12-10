@@ -42,3 +42,19 @@ func (c *Client) DeleteByQuery(index string, query elastic.Query) (err error) {
 
 	return
 }
+
+func (c *Client) DeleteByEqFields(index string, cond interface{}, fields ...string) (err error) {
+	boolQ := elastic.NewBoolQuery()
+
+	for _, field := range fields {
+		var val interface{}
+		if val, err = c.getFieldVal(field, cond); nil != err {
+			return
+		}
+		boolQ.Must(elastic.NewMatchQuery(field, val))
+	}
+
+	err = c.DeleteByQuery(index, boolQ)
+
+	return
+}
