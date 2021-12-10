@@ -9,13 +9,13 @@ import (
 // Paging 分页查询信息
 type Paging struct {
 	// 查询条件
-	boolQ *elastic.BoolQuery
+	BoolQ *elastic.BoolQuery
 	// 开始位置
-	from int
+	From int
 	// 查询数量
-	size int
+	Size int
 	// 排序字段
-	sorters []elastic.Sorter
+	Sorters []elastic.Sorter
 	// 结果类型
-	resultType reflect.Type
+	ResultType reflect.Type
 }
