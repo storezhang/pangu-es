@@ -88,7 +88,7 @@ func (c *Client) getFieldVal(field string, from interface{}) (val interface{}, e
 	for i := 0; i < fieldNum; i++ {
 		if strings.ToUpper(t.Field(i).Name) == strings.ToUpper(field) {
 			v := reflect.Indirect(reflect.ValueOf(from))
-			val = v.FieldByName(t.Field(i).Name)
+			val = v.FieldByName(t.Field(i).Name).Interface()
 			break
 		}
 	}
