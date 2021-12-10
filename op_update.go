@@ -2,7 +2,11 @@ package elasticsearch
 
 import (
 	`context`
+	`errors`
+	`fmt`
 	`net/http`
+	`reflect`
+	`strings`
 
 	`github.com/olivere/elastic/v7`
 )
@@ -15,7 +19,7 @@ func (c *Client) UpdateByScript(
 		Index(index).Id(docId).
 		Script(script).
 		RetryOnConflict(5).
-		Refresh("true").
+		Refresh(`true`).
 		Do(context.Background())
 
 	if nil != err {
@@ -38,7 +42,7 @@ func (c *Client) UpdateByQueryAndScript(
 		Query(query).
 		Script(script).
 		ProceedOnVersionConflict().
-		Refresh("true").
+		Refresh(`true`).
 		Do(context.Background())
 
 	if nil != err {
@@ -47,6 +51,50 @@ func (c *Client) UpdateByQueryAndScript(
 				err = nil
 			}
 		}
+	}
+
+	return
+}
+
+func (c *Client) UpdateByFields(
+	index, docId string, cond interface{}, fields ...string,
+) (result *elastic.UpdateResponse, err error) {
+	_fields := make(map[string]interface{}, len(fields))
+	for _, field := range fields {
+		if _fields[field], err = c.getFieldVal(field, cond); nil != err {
+			return
+		}
+	}
+	result, err = c.Update().
+		Index(index).
+		Id(docId).
+		Doc(_fields).
+		Refresh(`true`).
+		Do(context.Background())
+
+	return
+}
+
+func (c *Client) getFieldVal(field string, from interface{}) (val interface{}, err error) {
+	t := reflect.TypeOf(from)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return
+	}
+
+	fieldNum := t.NumField()
+	for i := 0; i < fieldNum; i++ {
+		if strings.ToUpper(t.Field(i).Name) == strings.ToUpper(field) {
+			v := reflect.Indirect(reflect.ValueOf(from))
+			val = v.FieldByName(t.Field(i).Name)
+			break
+		}
+	}
+
+	if nil == val {
+		err = errors.New(fmt.Sprintf(`未找到字段%s`, field))
 	}
 
 	return
