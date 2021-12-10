@@ -44,3 +44,33 @@ func (c *Client) GetsByQuery(index string, _ *elastic.BoolQuery, resultType refl
 
 	return
 }
+
+func (c *Client) GetsByPaging(index string, page *Paging) (results []interface{}, err error) {
+	var res *elastic.SearchResult
+	res, err = c.Search().
+		Index(index).
+		Query(page.boolQ).
+		From(page.from).
+		Size(page.size).
+		SortBy(page.sorters...).
+		Do(context.Background())
+
+	if nil != err {
+		if elasticErr, ok := err.(*elastic.Error); ok {
+			if http.StatusNotFound == elasticErr.Status {
+				err = nil
+			}
+		}
+	}
+
+	if nil != err {
+		return
+	}
+
+	results = make([]interface{}, 0, res.TotalHits())
+	for _, item := range res.Each(page.resultType) {
+		results = append(results, item)
+	}
+
+	return
+}
