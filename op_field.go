@@ -1,33 +1,34 @@
 package elasticsearch
 
 import (
+	`encoding/json`
 	`errors`
 	`fmt`
-	`reflect`
 	`strings`
+
+	`github.com/json-iterator/go`
 )
 
 func (c *Client) getFieldVal(field string, from interface{}) (val interface{}, err error) {
-	t := reflect.TypeOf(from)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-	if t.Kind() != reflect.Struct {
+	var data []byte
+	if data, err = json.Marshal(from); nil != err {
 		return
 	}
 
-	fieldNum := t.NumField()
-	for i := 0; i < fieldNum; i++ {
-		if strings.ToUpper(t.Field(i).Name) == strings.ToUpper(field) {
-			v := reflect.Indirect(reflect.ValueOf(from))
-			val = v.FieldByName(t.Field(i).Name).Interface()
-			break
+	_fields := strings.Split(field, `.`)
+	var temp jsoniter.Any
+	for i, _field := range _fields {
+		if i == 0 {
+			temp = jsoniter.Get(data, _field)
+		} else {
+			temp = temp.Get(_field)
+		}
+		if temp == nil {
+			err = errors.New(fmt.Sprintf(`未找到字段%s`, field))
 		}
 	}
 
-	if nil == val {
-		err = errors.New(fmt.Sprintf(`未找到字段%s`, field))
-	}
+	val = temp.GetInterface()
 
 	return
 }
