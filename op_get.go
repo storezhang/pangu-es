@@ -31,9 +31,9 @@ func (c *Client) GetByDocId(index string, docId string, result interface{}) (exi
 	return
 }
 
-func (c *Client) GetsByQuery(index string, _ *elastic.BoolQuery, resultType reflect.Type) (results []interface{}, err error) {
+func (c *Client) GetsByQuery(index string, query elastic.Query, resultType reflect.Type) (results []interface{}, err error) {
 	var res *elastic.SearchResult
-	if res, err = c.Search(index).Do(context.Background()); nil != err {
+	if res, err = c.Search(index).Query(query).Do(context.Background()); nil != err {
 		return
 	}
 
@@ -42,6 +42,32 @@ func (c *Client) GetsByQuery(index string, _ *elastic.BoolQuery, resultType refl
 		results = append(results, item)
 	}
 
+	return
+}
+
+func (c *Client) GetsByFields(index string, fieldsQuery *FieldsQuery) (results []interface{}, err error) {
+	sourceContext := c.Search().
+		Index(index).
+		Query(fieldsQuery.Query).
+		FetchSourceContext(elastic.NewFetchSourceContext(true).Include(fieldsQuery.Fields...))
+	if fieldsQuery.Size > 0 {
+		sourceContext.Size(fieldsQuery.Size)
+	}
+
+	var res *elastic.SearchResult
+	res, err = sourceContext.Do(context.Background())
+	if nil != err {
+		if elasticErr, ok := err.(*elastic.Error); ok {
+			if http.StatusNotFound == elasticErr.Status {
+				err = nil
+			}
+		}
+	}
+
+	results = make([]interface{}, 0, res.TotalHits())
+	for _, item := range res.Each(fieldsQuery.ResultType) {
+		results = append(results, item)
+	}
 	return
 }
 
