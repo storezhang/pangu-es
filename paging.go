@@ -9,7 +9,10 @@ import (
 // Paging 分页查询信息
 type Paging struct {
 	// 查询条件
-	BoolQ *elastic.BoolQuery
+	elastic.Query
+
+	// 查询结果包含的字段
+	Fields []string
 	// 开始位置
 	From int
 	// 查询数量
