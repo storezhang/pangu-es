@@ -91,6 +91,7 @@ func (c *Client) GetsByPaging(index string, paging *Paging) (results []interface
 		}
 	}
 
+	total = res.TotalHits()
 	results = make([]interface{}, 0, res.TotalHits())
 	for _, item := range res.Each(paging.ResultType) {
 		results = append(results, item)
