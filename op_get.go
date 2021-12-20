@@ -31,6 +31,24 @@ func (c *Client) GetByDocId(index string, docId string, result interface{}) (exi
 	return
 }
 
+func (c *Client) GetByEqFields(
+	index string, cond interface{}, resultType reflect.Type, fields ...string,
+) (results []interface{}, err error) {
+	boolQ := elastic.NewBoolQuery()
+
+	for _, field := range fields {
+		var val interface{}
+		if val, err = c.getFieldVal(field, cond); nil != err {
+			return
+		}
+		boolQ.Must(elastic.NewMatchQuery(field, val))
+	}
+
+	results, err = c.GetsByQuery(index, boolQ, resultType)
+
+	return
+}
+
 func (c *Client) GetsByQuery(index string, query elastic.Query, resultType reflect.Type) (results []interface{}, err error) {
 	var res *elastic.SearchResult
 	if res, err = c.Search(index).Query(query).Do(context.Background()); nil != err {
