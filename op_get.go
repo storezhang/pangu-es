@@ -66,7 +66,8 @@ func (c *Client) GetsByQuery(index string, query elastic.Query, resultType refle
 func (c *Client) GetsByPaging(index string, paging *Paging) (results []interface{}, total int64, err error) {
 	sourceContext := c.Search().
 		Index(index).
-		Query(paging.Query)
+		Query(paging.Query).
+		SortBy(paging.Sorters...)
 
 	if nil != paging.Fields && 0 < len(paging.Fields) {
 		sourceContext.FetchSourceContext(elastic.NewFetchSourceContext(true).Include(paging.Fields...))
