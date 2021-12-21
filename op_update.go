@@ -2,7 +2,6 @@ package elasticsearch
 
 import (
 	`context`
-	`net/http`
 
 	`github.com/olivere/elastic/v7`
 )
@@ -18,14 +17,6 @@ func (c *Client) UpdateByScript(
 		Refresh(`true`).
 		Do(context.Background())
 
-	if nil != err {
-		if elasticErr, ok := err.(*elastic.Error); ok {
-			if http.StatusNotFound == elasticErr.Status {
-				err = nil
-			}
-		}
-	}
-
 	return
 }
 
@@ -40,14 +31,6 @@ func (c *Client) UpdateByQueryAndScript(
 		ProceedOnVersionConflict().
 		Refresh(`true`).
 		Do(context.Background())
-
-	if nil != err {
-		if elasticErr, ok := err.(*elastic.Error); ok {
-			if http.StatusNotFound == elasticErr.Status {
-				err = nil
-			}
-		}
-	}
 
 	return
 }

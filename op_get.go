@@ -3,7 +3,6 @@ package elasticsearch
 import (
 	`context`
 	`encoding/json`
-	`net/http`
 	`reflect`
 
 	`github.com/olivere/elastic/v7`
@@ -11,14 +10,10 @@ import (
 
 func (c *Client) GetByDocId(index string, docId string, result interface{}) (exists bool, err error) {
 	var rsp *elastic.GetResult
-	rsp, err = c.Get().Index(index).Id(docId).Do(context.Background())
-	if nil != err {
-		if elasticErr, ok := err.(*elastic.Error); ok {
-			if http.StatusNotFound == elasticErr.Status {
-				err = nil
-			}
-		}
+	if rsp, err = c.Get().Index(index).Id(docId).Do(context.Background()); nil != err {
+		return
 	}
+
 	if nil == rsp || !rsp.Found || nil == rsp.Source {
 		return
 	}
@@ -82,13 +77,8 @@ func (c *Client) GetsByPaging(index string, paging *Paging) (results []interface
 	}
 
 	var res *elastic.SearchResult
-	res, err = sourceContext.Do(context.Background())
-	if nil != err {
-		if elasticErr, ok := err.(*elastic.Error); ok {
-			if http.StatusNotFound == elasticErr.Status {
-				err = nil
-			}
-		}
+	if res, err = sourceContext.Do(context.Background()); nil != err {
+		return
 	}
 
 	total = res.TotalHits()
