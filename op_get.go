@@ -3,6 +3,7 @@ package elasticsearch
 import (
 	`context`
 	`encoding/json`
+	`fmt`
 	`reflect`
 
 	`github.com/olivere/elastic/v7`
@@ -26,20 +27,54 @@ func (c *Client) GetByDocId(index string, docId string, result interface{}) (exi
 	return
 }
 
-func (c *Client) GetByEqFields(
-	index string, cond interface{}, resultType reflect.Type, fields ...string,
-) (results []interface{}, err error) {
-	boolQ := elastic.NewBoolQuery()
+func (c *Client) GetByFields(index string, query *FieldsQuery) (results []interface{}, err error) {
+	sourceContext := c.Search().
+		Index(index).
+		SortBy(query.Sorters...)
+	if query.Size > 0 {
+		sourceContext.Size(query.Size)
+	} else {
+		sourceContext.Size(300)
+	}
+	if query.From > 0 {
+		sourceContext.From(query.From)
+	}
 
-	for _, field := range fields {
+	boolQ := elastic.NewBoolQuery()
+	for _, field := range query.FieldsEq {
 		var val interface{}
-		if val, err = c.getFieldVal(field, cond); nil != err {
+		if val, err = c.getFieldVal(field, query.Condition); nil != err {
 			return
 		}
 		boolQ.Must(elastic.NewMatchQuery(field, val))
 	}
+	for _, field := range query.FieldsLike {
+		var val interface{}
+		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+			return
+		}
+		bq := elastic.NewBoolQuery()
+		q := elastic.NewQueryStringQuery(fmt.Sprintf("*%s*", val))
+		q.AllowLeadingWildcard(true)
+		q.DefaultField(field)
+		q.AnalyzeWildcard(true)
+		bq.Should(q)
+		bq.MinimumNumberShouldMatch(1)
 
-	results, err = c.GetsByQuery(index, boolQ, resultType)
+		boolQ.Must(bq)
+	}
+
+	sourceContext.Query(boolQ)
+
+	var res *elastic.SearchResult
+	if res, err = sourceContext.Do(context.Background()); nil != err {
+		return
+	}
+
+	results = make([]interface{}, 0)
+	for _, item := range res.Each(query.ResultType) {
+		results = append(results, item)
+	}
 
 	return
 }
@@ -82,7 +117,7 @@ func (c *Client) GetsByPaging(index string, paging *Paging) (results []interface
 	}
 
 	total = res.TotalHits()
-	results = make([]interface{}, 0, res.TotalHits())
+	results = make([]interface{}, 0)
 	for _, item := range res.Each(paging.ResultType) {
 		results = append(results, item)
 	}
