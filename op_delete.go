@@ -6,8 +6,12 @@ import (
 	`github.com/olivere/elastic/v7`
 )
 
-func (c *Client) DeleteByDocId(index string, docId string) (err error) {
-	_, err = c.Delete().Index(index).Id(docId).Refresh(`true`).Do(context.Background())
+func (c *Client) DeleteByDocId(index string, ids ...string) (err error) {
+	if 1 == len(ids) {
+		_, err = c.Delete().Index(index).Id(ids[0]).Refresh(`true`).Do(context.Background())
+	} else {
+		err = c.DeleteByQuery(index, elastic.NewIdsQuery().Ids(ids...))
+	}
 
 	return
 }
