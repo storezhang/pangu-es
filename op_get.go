@@ -123,3 +123,42 @@ func (c *Client) GetsByPaging(index string, paging *Paging) (results []interface
 	}
 	return
 }
+
+func (c *Client) Count(index string, query *CountQuery) (total int64, err error) {
+	sourceContext := c.Search().
+		Index(index).
+		Size(0)
+
+	boolQ := elastic.NewBoolQuery()
+	for _, field := range query.FieldsEq {
+		var val interface{}
+		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+			return
+		}
+		boolQ.Must(elastic.NewMatchQuery(field, val))
+	}
+	for _, field := range query.FieldsLike {
+		var val interface{}
+		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+			return
+		}
+		bq := elastic.NewBoolQuery()
+		q := elastic.NewQueryStringQuery(fmt.Sprintf("*%s*", val))
+		q.AllowLeadingWildcard(true)
+		q.DefaultField(field)
+		q.AnalyzeWildcard(true)
+		bq.Should(q)
+		bq.MinimumNumberShouldMatch(1)
+
+		boolQ.Must(bq)
+	}
+	sourceContext.Query(boolQ)
+
+	var res *elastic.SearchResult
+	if res, err = sourceContext.Do(context.Background()); nil != err {
+		return
+	}
+	total = res.TotalHits()
+
+	return
+}
