@@ -1,4 +1,4 @@
-module github.com/usmile-ok/elasticsearch
+module github.com/pangum/elasticsearch
 
 go 1.17
 
