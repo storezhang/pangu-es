@@ -79,9 +79,14 @@ func (c *Client) GetByFields(index string, query *FieldsQuery) (results []interf
 	return
 }
 
-func (c *Client) GetsByQuery(index string, query elastic.Query, resultType reflect.Type) (results []interface{}, err error) {
+func (c *Client) GetsByQuery(
+	index string, query elastic.Query, resultType reflect.Type, sorters ...elastic.Sorter,
+) (results []interface{}, err error) {
 	var res *elastic.SearchResult
-	if res, err = c.Search(index).Query(query).Do(context.Background()); nil != err {
+	if res, err = c.Search(index).
+		Query(query).
+		SortBy(sorters...).
+		Do(context.Background()); nil != err {
 		return
 	}
 
