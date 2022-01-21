@@ -9,7 +9,7 @@ import (
 	`github.com/json-iterator/go`
 )
 
-func (c *Client) getFieldVal(field string, from interface{}) (val interface{}, err error) {
+func (c *Client) getFieldValue(field string, from interface{}) (val interface{}, err error) {
 	var data []byte
 	if data, err = json.Marshal(from); nil != err {
 		return
@@ -17,8 +17,8 @@ func (c *Client) getFieldVal(field string, from interface{}) (val interface{}, e
 
 	_fields := strings.Split(field, `.`)
 	var temp jsoniter.Any
-	for i, _field := range _fields {
-		if i == 0 {
+	for index, _field := range _fields {
+		if index == 0 {
 			temp = jsoniter.Get(data, _field)
 		} else {
 			temp = temp.Get(_field)

@@ -15,22 +15,21 @@ func newElasticClient(config *pangu.Config) (client *Client, err error) {
 	}
 
 	_conf := _panguConfig.ElasticSearch
-	// 配置http client
 	httpClient := new(http.Client)
 	httpClient.Transport = &http.Transport{
 		DialContext: (&net.Dialer{
-			Timeout:   _conf.Http.Dial.TimeOut,
+			Timeout:   _conf.Http.Dial.Timeout,
 			KeepAlive: _conf.Http.Dial.KeepAlive,
 		}).DialContext,
 		MaxIdleConns:          _conf.Http.Connections.Idle.Max,
 		MaxIdleConnsPerHost:   _conf.Http.Connections.Idle.PerHost,
 		MaxConnsPerHost:       _conf.Http.Connections.MaxPerHost,
-		IdleConnTimeout:       _conf.Http.Connections.Idle.TimeOut,
-		TLSHandshakeTimeout:   _conf.Http.Connections.TLS.TimeOut,
+		IdleConnTimeout:       _conf.Http.Connections.Idle.Timeout,
+		TLSHandshakeTimeout:   _conf.Http.Connections.TLS.Timeout,
 		ExpectContinueTimeout: _conf.Http.Connections.Wait,
 		ForceAttemptHTTP2:     _conf.Http.Connections.Http2,
 	}
-	
+
 	client = new(Client)
 	if client.Client, err = elastic.NewClient(
 		elastic.SetHttpClient(httpClient),

@@ -40,7 +40,7 @@ func (c *Client) UpdateByFields(
 ) (result *elastic.UpdateResponse, err error) {
 	_fields := make(map[string]interface{}, len(fields))
 	for _, field := range fields {
-		if _fields[field], err = c.getFieldVal(field, cond); nil != err {
+		if _fields[field], err = c.getFieldValue(field, cond); nil != err {
 			return
 		}
 	}

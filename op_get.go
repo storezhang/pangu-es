@@ -43,14 +43,14 @@ func (c *Client) GetByFields(index string, query *FieldsQuery) (results []interf
 	boolQ := elastic.NewBoolQuery()
 	for _, field := range query.FieldsEq {
 		var val interface{}
-		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+		if val, err = c.getFieldValue(field, query.Condition); nil != err {
 			return
 		}
 		boolQ.Must(elastic.NewMatchQuery(field, val))
 	}
 	for _, field := range query.FieldsLike {
 		var val interface{}
-		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+		if val, err = c.getFieldValue(field, query.Condition); nil != err {
 			return
 		}
 		bq := elastic.NewBoolQuery()
@@ -137,14 +137,14 @@ func (c *Client) Count(index string, query *CountQuery) (total int64, err error)
 	boolQ := elastic.NewBoolQuery()
 	for _, field := range query.FieldsEq {
 		var val interface{}
-		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+		if val, err = c.getFieldValue(field, query.Condition); nil != err {
 			return
 		}
 		boolQ.Must(elastic.NewMatchQuery(field, val))
 	}
 	for _, field := range query.FieldsLike {
 		var val interface{}
-		if val, err = c.getFieldVal(field, query.Condition); nil != err {
+		if val, err = c.getFieldValue(field, query.Condition); nil != err {
 			return
 		}
 		bq := elastic.NewBoolQuery()

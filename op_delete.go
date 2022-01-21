@@ -35,7 +35,7 @@ func (c *Client) DeleteByEqFields(index string, cond interface{}, fields ...stri
 
 	for _, field := range fields {
 		var val interface{}
-		if val, err = c.getFieldVal(field, cond); nil != err {
+		if val, err = c.getFieldValue(field, cond); nil != err {
 			return
 		}
 		boolQ.Must(elastic.NewMatchQuery(field, val))
