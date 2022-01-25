@@ -13,7 +13,6 @@ func newElasticClient(config *pangu.Config) (client *Client, err error) {
 	if err = config.Load(_panguConfig); nil != err {
 		return
 	}
-
 	_conf := _panguConfig.ElasticSearch
 	httpClient := new(http.Client)
 	httpClient.Transport = &http.Transport{

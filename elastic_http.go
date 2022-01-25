@@ -1,7 +1,7 @@
 package elasticsearch
 
 type elasticHttp struct {
-	Dial *Dial `yaml:"dial"`
+	Dial *dial `yaml:"dial"`
 	// Connections 连接配置
-	Connections *Connections `yaml:"connections"`
+	Connections *connections `yaml:"connections"`
 }

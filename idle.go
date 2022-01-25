@@ -4,8 +4,8 @@ import (
 	`time`
 )
 
-// Idle 空闲连接配置
-type Idle struct {
+// idle 空闲连接配置
+type idle struct {
 	// 最大空闲连接数
 	Max int `default:"300" yaml:"max"`
 	// 单个主机最大空闲连接数

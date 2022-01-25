@@ -4,7 +4,7 @@ import (
 	`time`
 )
 
-type Connections struct {
+type connections struct {
 	// 单个主机最大连接数
 	MaxPerHost int `default:"300" yaml:"maxPerHost"`
 	// ExpectContinueTimeout
@@ -12,7 +12,7 @@ type Connections struct {
 	// 强制尝试Http2
 	Http2 bool `default:"true" yaml:"http2"`
 	// 空闲连接配置
-	Idle *Idle `yaml:"idle"`
+	Idle *idle `yaml:"idle"`
 	// TLS 安全传输配置
-	TLS *TLS `yaml:"tls"`
+	TLS *tls `yaml:"tls"`
 }
